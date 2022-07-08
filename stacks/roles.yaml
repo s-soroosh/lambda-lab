@@ -1,0 +1,71 @@
+Parameters:
+  TableArn:
+    Type: String
+    Description: "TableArn"
+  MessageQueueArn:
+    Type: String
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: allowLambdaLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:*
+                Resource: arn:aws:logs:*:*:*
+        - PolicyName: allowWriteToEventsTable
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:List*,
+                  - dynamodb:DescribeReservedCapacity*,
+                  - dynamodb:DescribeLimits,
+                  - dynamodb:DescribeTimeToLive
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - dynamodb:BatchGet*
+                  - dynamodb:DescribeStream
+                  - dynamodb:DescribeTable,
+                  - dynamodb:Get*,
+                  - dynamodb:Query,
+                  - dynamodb:Scan,
+                  - dynamodb:BatchWrite*,
+                  - dynamodb:CreateTable,
+                  - dynamodb:Delete*,
+                  - dynamodb:Update*,
+                  - dynamodb:PutItem
+                Resource: !Ref TableArn
+
+        - PolicyName: allowSqs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:ChangeMessageVisibility
+                Resource: !Ref MessageQueueArn
+Outputs:
+  Arn:
+    Value: !GetAtt LambdaExecutionRole.Arn
+    Export:
+      Name: Arn
