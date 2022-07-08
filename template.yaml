@@ -64,6 +64,13 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
+                  - dynamodb:List*,
+                  - dynamodb:DescribeReservedCapacity*,
+                  - dynamodb:DescribeLimits,
+                  - dynamodb:DescribeTimeToLive
+                Resource: "*"
+              - Effect: Allow
+                Action:
                   - dynamodb:BatchGet*
                   - dynamodb:DescribeStream
                   - dynamodb:DescribeTable,
