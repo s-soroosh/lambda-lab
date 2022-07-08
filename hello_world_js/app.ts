@@ -1,7 +1,8 @@
 import {Context, APIGatewayProxyCallback, SQSEvent} from 'aws-lambda';
 import AWS from 'aws-sdk';
 
-const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'})
+// const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'})
+const docClient = new AWS.DynamoDB.DocumentClient();
 
 export const lambdaHandler = (event: SQSEvent, context: Context, callback: APIGatewayProxyCallback): void => {
     console.log(`Event: ${JSON.stringify(event, null, 2)}`);
@@ -9,7 +10,7 @@ export const lambdaHandler = (event: SQSEvent, context: Context, callback: APIGa
 
     event.Records.forEach(record => {
         const event = JSON.parse(record.body);
-        dynamodb.putItem({
+        docClient.put({
             TableName: "Events",
             Item: {
                 Channel: event.channel,
