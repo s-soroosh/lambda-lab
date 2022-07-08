@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-lambda": "^1.0.7"
+    "aws-lambda": "^1.0.7",
+    "aws-sdk": "^2.1170.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.92",
@@ -27,6 +28,5 @@
     "prettier": "^2.5.1",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.5"
-
   }
 }
