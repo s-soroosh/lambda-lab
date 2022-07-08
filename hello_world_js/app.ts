@@ -1,10 +1,10 @@
-import {Context, APIGatewayProxyCallback, SQSEvent} from 'aws-lambda';
+import {Context, SQSEvent} from 'aws-lambda';
 import AWS from 'aws-sdk';
 
 // const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'})
 const docClient = new AWS.DynamoDB.DocumentClient();
 
-export const lambdaHandler = (event: SQSEvent, context: Context, callback: APIGatewayProxyCallback): void => {
+export const lambdaHandler = (event: SQSEvent, context: Context): void => {
     console.log(`Event: ${JSON.stringify(event, null, 2)}`);
     console.log(`Context: ${JSON.stringify(context, null, 2)}`);
 
@@ -25,10 +25,4 @@ export const lambdaHandler = (event: SQSEvent, context: Context, callback: APIGa
             }
         })
     })
-    callback(null, {
-        statusCode: 200,
-        body: JSON.stringify({
-            message: 'hello world',
-        }),
-    });
 };
