@@ -14,6 +14,12 @@ Globals:
     TracingEnabled: True
 
 Resources:
+  MessageQueue:
+    Type: AWS::SQS:Queue
+    Properties:
+      QueueName: "lambda-test-queue"
+      FifoQueue: true
+
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -65,3 +71,10 @@ Outputs:
   HelloWorldTSFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt HelloWorldTSFunction.Arn
+  QueueName:
+    Description: "Queue name is"
+    Value: !GetAtt MessageQueue.QueueName
+  QueueARN:
+    Description: "Queue ARN is"
+    Value: !GetAtt MessageQueue.Arn
+
