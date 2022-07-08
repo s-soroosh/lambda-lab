@@ -1,6 +1,16 @@
 import {Context, SQSEvent} from 'aws-lambda';
 import AWS from 'aws-sdk';
 
+AWS.config.update({
+    maxRetries: 2,
+
+    httpOptions: {
+        timeout: 3000,
+        connectTimeout: 5000
+    }
+
+});
+
 // const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'})
 
 
