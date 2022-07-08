@@ -19,6 +19,24 @@ Resources:
     Properties:
       QueueName: "lambda-test-queue"
 
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Channel"
+          AttributeType: "S"
+        - AttributeName: "Event"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Channel"
+          KeyType: "HASH"
+        - AttributeName: "Event"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: "Events"
+
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -40,6 +58,25 @@ Resources:
                 Action:
                   - logs:*
                 Resource: arn:aws:logs:*:*:*
+        - PolicyName: allowWriteToEventsTable
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:BatchGet*
+                  - dynamodb:DescribeStream
+                  - dynamodb:DescribeTable,
+                  - dynamodb:Get*,
+                  - dynamodb:Query,
+                  - dynamodb:Scan,
+                  - dynamodb:BatchWrite*,
+                  - dynamodb:CreateTable,
+                  - dynamodb:Delete*,
+                  - dynamodb:Update*,
+                  - dynamodb:PutItem
+                Resource: !GetAtt DynamoDBTable.Arn
+
         - PolicyName: allowSqs
           PolicyDocument:
             Version: '2012-10-17'
