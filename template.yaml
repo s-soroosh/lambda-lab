@@ -19,134 +19,45 @@ Resources:
     Properties:
       QueueName: "lambda-test-queue"
 
-  DynamoDBTable:
-    Type: AWS::DynamoDB::Table
+  Tables:
+    Type: 'AWS::CloudFormation::Stack'
     Properties:
-      AttributeDefinitions:
-        - AttributeName: "Channel"
-          AttributeType: "S"
-        - AttributeName: "Event"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "Channel"
-          KeyType: "HASH"
-        - AttributeName: "Event"
-          KeyType: "RANGE"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
-      TableName: "Events"
+      TemplateURL: stacks/tables.yaml
 
-  LambdaExecutionRole:
-    Type: AWS::IAM::Role
+  Roles:
+    Type: "AWS::CloudFormation::Stack"
     Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Policies:
-        - PolicyName: allowLambdaLogs
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:*
-                Resource: arn:aws:logs:*:*:*
-        - PolicyName: allowWriteToEventsTable
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - dynamodb:List*,
-                  - dynamodb:DescribeReservedCapacity*,
-                  - dynamodb:DescribeLimits,
-                  - dynamodb:DescribeTimeToLive
-                Resource: "*"
-              - Effect: Allow
-                Action:
-                  - dynamodb:BatchGet*
-                  - dynamodb:DescribeStream
-                  - dynamodb:DescribeTable,
-                  - dynamodb:Get*,
-                  - dynamodb:Query,
-                  - dynamodb:Scan,
-                  - dynamodb:BatchWrite*,
-                  - dynamodb:CreateTable,
-                  - dynamodb:Delete*,
-                  - dynamodb:Update*,
-                  - dynamodb:PutItem
-                Resource: !GetAtt DynamoDBTable.Arn
+      TemplateURL: stacks/roles.yaml
+      Parameters:
+        TableArn: !GetAtt Tables.Outputs.TableArn
+        MessageQueueArn: !GetAtt MessageQueue.Arn
 
-        - PolicyName: allowSqs
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - sqs:ReceiveMessage
-                  - sqs:DeleteMessage
-                  - sqs:GetQueueAttributes
-                  - sqs:ChangeMessageVisibility
-                Resource: !GetAtt MessageQueue.Arn
-
-  HelloWorldTSFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  Function:
+    Type: "AWS::CloudFormation::Stack"
     Properties:
-      CodeUri: hello_world_js/
-      Handler: app.lambdaHandler
-      Runtime: nodejs16.x
-      Role: !GetAtt LambdaExecutionRole.Arn
-      MemorySize: 512
-      Architectures:
-        - x86_64
-      Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /hello-js
-            Method: get
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        EntryPoints:
-          - app.ts
-
-  LambdaFunctionEventSourceMapping:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: 10
-      Enabled: true
-      EventSourceArn: !GetAtt MessageQueue.Arn
-      FunctionName: !GetAtt HelloWorldTSFunction.Arn
+      TemplateURL: stacks/functions.yaml
+      Parameters:
+        FunctionsRole: !GetAtt Roles.Outputs.Arn
+        MessageQueueArn: !GetAtt MessageQueue.Arn
 
 
-Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello-js/"
-  HelloWorldTSFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldTSFunction.Arn
-  HelloWorldTSFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldTSFunction.Arn
-  QueueName:
-    Description: "Queue name is"
-    Value: !GetAtt MessageQueue.QueueName
-  QueueARN:
-    Description: "Queue ARN is"
-    Value: !GetAtt MessageQueue.Arn
+#Outputs:
+#  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+#  # Find out more about other implicit resources you can reference within SAM
+#  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+#  HelloWorldApi:
+#    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+#    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello-js/"
+#  HelloWorldTSFunction:
+#    Description: "Hello World Lambda Function ARN"
+#    Value: !GetAtt HelloWorldTSFunction.Arn
+#  HelloWorldTSFunctionIamRole:
+#    Description: "Implicit IAM Role created for Hello World function"
+#    Value: !GetAtt HelloWorldTSFunction.Arn
+#  QueueName:
+#    Description: "Queue name is"
+#    Value: !GetAtt MessageQueue.QueueName
+#  QueueARN:
+#    Description: "Queue ARN is"
+#    Value: !GetAtt MessageQueue.Arn
 
