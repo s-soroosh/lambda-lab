@@ -34,12 +34,12 @@ Resources:
             "Comment": "A lambda run by step functions",
             "StartAt": "Hello",
             "States": {
-              "HelloWorld": {
+              "Hello": {
                 "Type": "Task",
                 "Resource": "${lambdaArn}",
                 "End": true
               }
             }
           }
-        - {lambdaArn: !GetAtt [ MyLambdaFunction, Arn ]}
+        - lambdaArn: !Ref lambdaArn
       RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
