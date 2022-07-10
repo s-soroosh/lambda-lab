@@ -40,6 +40,14 @@ Resources:
         FunctionsRole: !GetAtt Roles.Outputs.Arn
         MessageQueueArn: !GetAtt MessageQueue.Arn
 
+  StateMachine:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      TemplateURL: stacks/state_machine.yaml
+      Parameters:
+        lambdaArn: !GetAtt Function.Outputs.helloWorldArn
+
+
 
 #Outputs:
 #  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
