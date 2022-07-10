@@ -40,3 +40,9 @@ Resources:
       Enabled: true
       EventSourceArn: !Ref MessageQueueArn
       FunctionName: !GetAtt HelloWorldTSFunction.Arn
+
+Outputs:
+  helloWorldArn:
+    Value: !GetAtt HelloWorldTSFunction.Arn
+    Export:
+      Name: helloWorldArn
