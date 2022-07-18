@@ -10,6 +10,15 @@ provider:
 functions:
   hello:
     handler: app.lambdaHandler
+    events:
+      - httpApi: 'GET /test'
+
+resources:
+  Resources:
+    MessageQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: "lambda-test-queue"
 
 plugins:
   - serverless-offline
